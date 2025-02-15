@@ -1,19 +1,13 @@
-# Conan Starter Project
+# 3D Rocket Game
 
-`conan-starter` is a starter project to easily get started to using conan. This is a template repository \
-that you can use.
+Participated in the SFSU Game Jam of 2025. This is a 3D rocket game that I built using my custom game engine to implement the features of this game.
 
-## Conan Setup
 
-To get all of Engine3D packages, just run this conan command. To start using them.
+## To Build The Project
 
-```
-conan remote add engine3d-conan https://libhal.jfrog.io/artifactory/api/conan/engine3d-conan
-```
+- Assuming you have already gone ahead and did the `getting_started` process.
 
-## Build Starter
-
-Run this conan command to build the project with `-b missing` on the first build, so conan can install any missing dependencies.
+- Go ahead and run this build command
 
 ```
 conan build . -b missing
@@ -21,4 +15,4 @@ conan build . -b missing
 
 ## Running the Starter
 
-Running the executable, `./build/Release/Starter`
+Location of the executable to run is: `./build/Release/Starter`

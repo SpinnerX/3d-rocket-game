@@ -7,6 +7,7 @@ build_application(
     application.cpp
     game_world.cpp
     scenes/main_scene.cpp
+    content/controller/rocket_controller.cpp
 
     PACKAGES
     imguidocking
@@ -27,3 +28,5 @@ build_application(
 
     engine3d::engine3d
 )
+
+target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_LIST_DIR})

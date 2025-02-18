@@ -7,7 +7,7 @@ build_application(
     application.cpp
     game_world.cpp
     scenes/main_scene.cpp
-    content/controller/rocket_controller.cpp
+    content/CharacterController.cpp
 
     PACKAGES
     imguidocking

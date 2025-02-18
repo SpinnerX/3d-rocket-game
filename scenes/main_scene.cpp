@@ -1,14 +1,11 @@
 #include "main_scene.hpp"
-#include <core/event/input_poll.hpp>
-#include <core/system_framework/system_registry.hpp>
-#include <scene/components/components.hpp>
-#include <core/update_handlers/sync_update.hpp>
-#include <renderer/renderer.hpp>
 #include <core/ui/widgets.hpp>
 
+constexpr int ROTATION_DIRECTION_X = 1;
+constexpr int ROTATION_DIRECTION_Y = 1;
+
 namespace engine3d{
-    MainScene::MainScene(){
-    }
+    MainScene::MainScene(){}
 
     MainScene::MainScene(const std::string& Tag) : SceneScope(Tag){
 
@@ -20,12 +17,13 @@ namespace engine3d{
         });
         m_MainCamera->AddComponent<PerspectiveCamera>();
 
+        m_Rocket = CharacterController(this);
+
         m_Sphere = CreateNewObject("Object 1");
         m_Sphere->SetComponent<Transform>({
             .Position = {0.f, 2.10f, -7.30f},
             .Scale = {.20f,.20f, .20f}
         });
-
         m_Sphere->SetComponent<MeshComponent>({"Ball OBJ.obj"});
 
 
@@ -33,16 +31,9 @@ namespace engine3d{
         sync_update::attach(this, &MainScene::OnUIUpdate);
         sync_update::submit(this, &MainScene::OnSceneRender);
     }
-
-    void MainScene::OnUpdate(){
-        auto perspective_camera_transform = *m_MainCamera->GetComponent<Transform>();
-        auto perspective_camera = *m_MainCamera->GetComponent<PerspectiveCamera>();
-        auto deltaTime = sync_update::DeltaTime();
-
-        if (InputPoll::IsKeyPressed(ENGINE_KEY_ESCAPE)){
-            ApplicationInstance::GetWindow().Close();
-        }
-
+    
+    PerspectiveCamera MainScene::getViewPortControl(PerspectiveCamera& perspective_camera, float deltaTime, bool click_check)
+    {
         if (InputPoll::IsKeyPressed(ENGINE_KEY_W)){
             perspective_camera.ProcessKeyboard(FORWARD, deltaTime);
         }
@@ -62,47 +53,56 @@ namespace engine3d{
             perspective_camera.ProcessKeyboard(DOWN, deltaTime);
         }
 
-        //! @note Press shift key to move using the mouse to rotate around
-        if(InputPoll::IsKeyPressed(ENGINE_KEY_LEFT_SHIFT)){
-            if(InputPoll::IsMousePressed(ENGINE_MOUSE_BUTTON_RIGHT)){
-                glm::vec2 cursor_pos = InputPoll::GetMousePosition();
-
-                float x_offset = cursor_pos.x;
-                float velocity = x_offset * deltaTime;
-                perspective_camera.ProcessMouseMovement(-velocity, 0.f);
-            }
-
-            if(InputPoll::IsMousePressed(ENGINE_MOUSE_BUTTON_LEFT)){
-                glm::vec2 cursor_pos = InputPoll::GetMousePosition();
-
-                float x_offset = cursor_pos.x;
-                float velocity = x_offset * deltaTime;
-                perspective_camera.ProcessMouseMovement(velocity, 0.f);
-            }
-
-            if(InputPoll::IsMousePressed(ENGINE_MOUSE_BUTTON_MIDDLE)){
-                glm::vec2 cursor_pos = InputPoll::GetMousePosition();
-
-                float velocity = cursor_pos.y * deltaTime;
-                perspective_camera.ProcessMouseMovement(0.f, velocity);
-            }
-
-            if(InputPoll::IsKeyPressed(ENGINE_KEY_SPACE)){
-                glm::vec2 cursor_pos = InputPoll::GetMousePosition();
-                float velocity = cursor_pos.y * deltaTime;
-                perspective_camera.ProcessMouseMovement(0.f, -velocity);
-            }
+        if (InputPoll::IsKeyPressed(ENGINE_KEY_LEFT_CONTROL))
+        {
+            if(InputPoll::IsKeyPressed(ENGINE_KEY_F12))
+                ApplicationInstance::GetWindow().Close();
         }
 
-        perspective_camera.UpdateProjView();
+        //! @note Press right key and drag the mouse to rotate around
+        if (InputPoll::IsMousePressed(ENGINE_MOUSE_BUTTON_RIGHT)) {
+            glm::vec2 cursor_pos = InputPoll::GetMousePosition();
+            
+            //! @note On right click make sure change starts as 0
+            if(!on_click_check)
+            {
+                last_cursor_pos = cursor_pos;
+                on_click_check = true;
+            }
 
+            //! @note offset is now delta_x and delta_y
+            //! @note the difference between mouse old and new positions
+            glm::vec2 offset = cursor_pos - last_cursor_pos;
 
-        m_MainCamera->SetComponent<engine3d::PerspectiveCamera>(perspective_camera);
+            glm::vec2 velocity = offset * (deltaTime * 100);
+
+            perspective_camera.ProcessMouseMovement(velocity.x * ROTATION_DIRECTION_X, 0.0f);
+
+            perspective_camera.ProcessMouseMovement(0.0f,velocity.y * ROTATION_DIRECTION_Y);
+
+            last_cursor_pos = cursor_pos;
+        } else {
+            on_click_check = false;
+        }
+
+        return perspective_camera;
+    }
+
+    void MainScene::OnUpdate()
+    {
+        Transform perspective_camera_transform = *m_MainCamera->GetComponent<Transform>();
+        PerspectiveCamera perspective_camera = *m_MainCamera->GetComponent<PerspectiveCamera>();
+        float deltaTime = sync_update::DeltaTime();
+        
+        PerspectiveCamera camera = getViewPortControl(perspective_camera, deltaTime, on_click_check );
+        camera.UpdateProjView();
+
+        m_MainCamera->SetComponent<engine3d::PerspectiveCamera>(camera);
         m_MainCamera->SetComponent<engine3d::Transform>(perspective_camera_transform);
     }
 
     void MainScene::OnUIUpdate(){
-        // Getting our sphere transform to modify it
+        //Getting our sphere transform to modify it
         auto sphere_data = *m_Sphere->GetComponent<Transform>();
 
         //! @note Basic Properties Panel
@@ -132,6 +132,7 @@ namespace engine3d{
     }
 
     void MainScene::OnSceneRender(){
-        Renderer::RenderWithCamera(m_Sphere, m_MainCamera);
+        Renderer::RenderWithCamera(m_Rocket, m_MainCamera);
+        Renderer::RenderSceneObject(m_Sphere);
     }
 };

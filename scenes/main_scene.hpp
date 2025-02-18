@@ -5,6 +5,7 @@
 #include <scene/components/components.hpp>
 #include <core/update_handlers/sync_update.hpp>
 #include <renderer/renderer.hpp>
+#include "content/CharacterController.hpp"
 
 // #include <core/ui/widgets.hpp>
 
@@ -35,5 +36,6 @@ namespace engine3d{
         std::string m_MeshFilepath="";
         Ref<SceneObject> m_MainCamera=nullptr;
         Ref<SceneObject> m_Sphere=nullptr;
+        Ref<SceneObject> m_Rocket=nullptr;
     };
 };

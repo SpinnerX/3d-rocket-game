@@ -17,12 +17,13 @@ namespace engine3d{
         });
         m_MainCamera->AddComponent<PerspectiveCamera>();
 
+        m_Rocket = CharacterController(this);
+
         m_Sphere = CreateNewObject("Object 1");
         m_Sphere->SetComponent<Transform>({
             .Position = {0.f, 2.10f, -7.30f},
             .Scale = {.20f,.20f, .20f}
         });
-
         m_Sphere->SetComponent<MeshComponent>({"Ball OBJ.obj"});
 
 
@@ -101,36 +102,37 @@ namespace engine3d{
     }
 
     void MainScene::OnUIUpdate(){
-        // Getting our sphere transform to modify it
-        // auto sphere_data = *m_Sphere->GetComponent<Transform>();
+        //Getting our sphere transform to modify it
+        auto sphere_data = *m_Sphere->GetComponent<Transform>();
 
-        // //! @note Basic Properties Panel
-        // if(ImGui::Begin("Properties Panel")){
-        //     //! @note THERE IS AN ERROR. Where if the imgui docking window is outside of the window
-        //     //! @note Imgui will just have a window that appears until when you exit the application and the UI is not docked outside the window
-        //     ui::DrawPanelComponent<MeshComponent>("Sphere", [&](){
+        //! @note Basic Properties Panel
+        if(ImGui::Begin("Properties Panel")){
+            //! @note THERE IS AN ERROR. Where if the imgui docking window is outside of the window
+            //! @note Imgui will just have a window that appears until when you exit the application and the UI is not docked outside the window
+            ui::DrawPanelComponent<MeshComponent>("Sphere", [&](){
 
-        //         ui::DrawVec3UI("pos 1", sphere_data.Position);
-        //         ui::DrawVec3UI("scale 1", sphere_data.Scale);
-        //         ui::DrawVec3UI("rotate 1", sphere_data.Rotation);
-        //         ui::LoadFileWithUI("Load Mesh 1", m_MeshFilepath);
+                ui::DrawVec3UI("pos 1", sphere_data.Position);
+                ui::DrawVec3UI("scale 1", sphere_data.Scale);
+                ui::DrawVec3UI("rotate 1", sphere_data.Rotation);
+                ui::LoadFileWithUI("Load Mesh 1", m_MeshFilepath);
                 
-        //         if(m_MeshFilepath != ""){
-        //             std::filesystem::path relative_path = std::filesystem::relative(m_MeshFilepath, "./");
-        //             ConsoleLogTrace("Filepath = {}", m_MeshFilepath);
-        //             ConsoleLogTrace("in branch 1 mesh_file = {}", relative_path.string());
+                if(m_MeshFilepath != ""){
+                    std::filesystem::path relative_path = std::filesystem::relative(m_MeshFilepath, "./");
+                    ConsoleLogTrace("Filepath = {}", m_MeshFilepath);
+                    ConsoleLogTrace("in branch 1 mesh_file = {}", relative_path.string());
 
-        //             m_Sphere->SetComponent<MeshComponent>({relative_path.string()});
-        //             m_MeshFilepath = "";
-        //         }
-        //     });
-        //     ImGui::End();
-        // }
+                    m_Sphere->SetComponent<MeshComponent>({relative_path.string()});
+                    m_MeshFilepath = "";
+                }
+            });
+            ImGui::End();
+        }
 
-        // m_Sphere->SetComponent<Transform>(sphere_data);
+        m_Sphere->SetComponent<Transform>(sphere_data);
     }
 
     void MainScene::OnSceneRender(){
-        Renderer::RenderWithCamera(m_Sphere, m_MainCamera);
+        Renderer::RenderWithCamera(m_Rocket, m_MainCamera);
+        Renderer::RenderSceneObject(m_Sphere);
     }
 };

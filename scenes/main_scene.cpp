@@ -10,14 +10,15 @@ namespace engine3d{
     MainScene::MainScene(const std::string& Tag) : SceneScope(Tag){
 
         ConsoleLogFatal("MainScene::MainScene Constructor Called to get world tag = {}", SystemRegistry::GetWorld().GetTag());
+        m_Rocket = CharacterController(this);
+        
+        
         m_MainCamera =  CreateNewObject("Main Camera");
         m_MainCamera->SetComponent<Transform>({
-            .Position = {0.f, 1.40f, -7.4f},
+            .Position = {7.f, 2.10f, -7.40f},
             .Scale = {2.80f, 1.f, 3.70f}
         });
         m_MainCamera->AddComponent<PerspectiveCamera>();
-
-        m_Rocket = CharacterController(this);
 
         m_Sphere = CreateNewObject("Object 1");
         m_Sphere->SetComponent<Transform>({
@@ -96,6 +97,7 @@ namespace engine3d{
         
         PerspectiveCamera camera = getViewPortControl(perspective_camera, deltaTime, on_click_check );
         camera.UpdateProjView();
+        printf("\nCamera Pos: %f, %f, %f", camera.Position.x, camera.Position.y, camera.Position.z);
 
         m_MainCamera->SetComponent<engine3d::PerspectiveCamera>(camera);
         m_MainCamera->SetComponent<engine3d::Transform>(perspective_camera_transform);
@@ -133,6 +135,6 @@ namespace engine3d{
 
     void MainScene::OnSceneRender(){
         Renderer::RenderWithCamera(m_Rocket, m_MainCamera);
-        Renderer::RenderSceneObject(m_Sphere);
+
     }
 };

@@ -6,23 +6,27 @@
 #include <core/event/input_poll.hpp>
 // #include "main_scene.hpp"
 
-    class CharacterController{
+    class CharacterController {
         public:
             CharacterController();
             CharacterController(engine3d::SceneScope* p_current_scene);
             virtual ~CharacterController();
             void setAcceleration();
-    
+
             operator engine3d::Ref<engine3d::SceneObject>(){ return m_ObjectHandler; }
         
         private:
-            void OnUpdate();
-            void OnPhysicsUpdate();
             glm::vec3 getLinearVelocity();
             glm::vec3 getRotationalVelocity();
-        private:
             glm::vec3 velocity;
             glm::vec3 rotation;
+            
             std::string objectRef = "";
             engine3d::Ref<engine3d::SceneObject> m_ObjectHandler;
+            
+            
+        private:
+            void OnUpdate();
+            void OnPhysicsUpdate();
+            void setLinearVelocity(engine3d::Transform moveVector);
         };

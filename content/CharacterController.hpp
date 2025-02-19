@@ -19,7 +19,10 @@
             void OnUpdate();
             void OnPhysicsUpdate();
             glm::vec3 getLinearVelocity();
+            glm::vec3 getRotationalVelocity();
         private:
+            glm::vec3 velocity;
+            glm::vec3 rotation;
             std::string objectRef = "";
             engine3d::Ref<engine3d::SceneObject> m_ObjectHandler;
         };

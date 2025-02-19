@@ -12,7 +12,7 @@ namespace engine3d{
         ConsoleLogFatal("MainScene::MainScene Constructor Called to get world tag = {}", SystemRegistry::GetWorld().GetTag());
         m_MainCamera =  CreateNewObject("Main Camera");
         m_MainCamera->SetComponent<Transform>({
-            .Position = {0.f, 1.40f, -7.4f},
+            .Position = {7.f, 2.10f, -7.4f},
             .Scale = {2.80f, 1.f, 3.70f}
         });
         m_MainCamera->AddComponent<PerspectiveCamera>();
@@ -133,6 +133,6 @@ namespace engine3d{
 
     void MainScene::OnSceneRender(){
         Renderer::RenderWithCamera(m_Rocket, m_MainCamera);
-        Renderer::RenderSceneObject(m_Sphere);
+
     }
 };

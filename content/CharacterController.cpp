@@ -1,5 +1,7 @@
-#include "CharacterController.hpp"
+#include <core/ui/widgets.hpp>
 #include <core/geometry/mesh.hpp>
+#include "CharacterController.hpp"
+
 
 CharacterController::CharacterController() {}
 
@@ -10,7 +12,6 @@ CharacterController::CharacterController(engine3d::SceneScope *p_current_scene)
         .Position = {7.f, 2.10f, -7.30f},
         .Scale = {.20f,.20f, .20f}
     });
-
     m_ObjectHandler->SetComponent<engine3d::MeshComponent>({"C:/DEV/ENGINE3D/3d-rocket-game/3d_models/wallacegrommit.obj"});
 }
 
@@ -26,6 +27,10 @@ glm::vec3 CharacterController::getLinearVelocity()
     float deltaTime = engine3d::sync_update::DeltaTime();
     
     return speed;
+}
+glm::vec3 CharacterController::getRotationalVelocity() 
+{ 
+    return glm::vec3(); 
 }
 void CharacterController::setAcceleration() {}
 

@@ -11,16 +11,17 @@
             CharacterController();
             CharacterController(engine3d::SceneScope* p_current_scene);
             virtual ~CharacterController();
-            void setAcceleration();
+            void setAcceleration(); 
+            glm::vec3 getLinearVelocity();
+            glm::vec3 getRotationalVelocity();
+            glm::vec3 getLocation();
 
             operator engine3d::Ref<engine3d::SceneObject>(){ return m_ObjectHandler; }
         
         private:
-            glm::vec3 getLinearVelocity();
-            glm::vec3 getRotationalVelocity();
             glm::vec3 velocity;
             glm::vec3 rotation;
-            
+            glm::vec3 location;
             std::string objectRef = "";
             engine3d::Ref<engine3d::SceneObject> m_ObjectHandler;
             

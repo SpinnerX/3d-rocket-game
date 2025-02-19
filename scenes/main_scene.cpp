@@ -8,32 +8,40 @@ namespace engine3d{
     MainScene::MainScene(){}
 
     MainScene::MainScene(const std::string& Tag) : SceneScope(Tag){
-
         ConsoleLogFatal("MainScene::MainScene Constructor Called to get world tag = {}", SystemRegistry::GetWorld().GetTag());
-        m_Rocket = CharacterController(this);
-        
+        cc = CharacterController(this);
+        m_Rocket = cc;
         
         m_MainCamera =  CreateNewObject("Main Camera");
         m_MainCamera->SetComponent<Transform>({
-            .Position = {7.f, 2.10f, -7.40f},
+            .Position = {0.f, 4.f, -3.f},
+            .Rotation = {0.f, 0.f, -30.f},
             .Scale = {2.80f, 1.f, 3.70f}
         });
         m_MainCamera->AddComponent<PerspectiveCamera>();
 
-        m_Sphere = CreateNewObject("Object 1");
+        m_Sphere = CreateNewObject("Object1");
         m_Sphere->SetComponent<Transform>({
             .Position = {0.f, 2.10f, -7.30f},
-            .Scale = {.20f,.20f, .20f}
+            .Scale = {200.20f,200.20f, 200.20f},
+            .Color = {32, 35, 100, 200}
         });
-        m_Sphere->SetComponent<MeshComponent>({"Ball OBJ.obj"});
+        m_Sphere->SetComponent<MeshComponent>({"3d_models/tutorial/colored_cube.obj"});
 
+        m_box = CreateNewObject("Object2");
+        m_box->SetComponent<Transform>({
+            .Position = {0.f, 2.10f, -27.30f},
+            .Scale = {200.20f,200.20f, 200.20f},
+            .Color = {32, 35, 100, 200}
+        });
+        m_box->SetComponent<MeshComponent>({"3d_models/tutorial/cube.obj"});
 
         sync_update::sync(this, &MainScene::OnUpdate);
         sync_update::attach(this, &MainScene::OnUIUpdate);
         sync_update::submit(this, &MainScene::OnSceneRender);
     }
     
-    PerspectiveCamera MainScene::getViewPortControl(PerspectiveCamera& perspective_camera, float deltaTime, bool click_check)
+    void MainScene::getViewPortControl(PerspectiveCamera &perspective_camera, float deltaTime, bool click_check)
     {
         if (InputPoll::IsKeyPressed(ENGINE_KEY_W)){
             perspective_camera.ProcessKeyboard(FORWARD, deltaTime);
@@ -85,8 +93,6 @@ namespace engine3d{
         } else {
             on_click_check = false;
         }
-
-        return perspective_camera;
     }
 
     void MainScene::OnUpdate()
@@ -95,20 +101,30 @@ namespace engine3d{
         PerspectiveCamera perspective_camera = *m_MainCamera->GetComponent<PerspectiveCamera>();
         float deltaTime = sync_update::DeltaTime();
         
-        PerspectiveCamera camera = getViewPortControl(perspective_camera, deltaTime, on_click_check );
-        camera.UpdateProjView();
-        printf("\nCamera Pos: %f, %f, %f", camera.Position.x, camera.Position.y, camera.Position.z);
+        perspective_camera.Pitch = perspective_camera_transform.Rotation.z;
+        
 
-        m_MainCamera->SetComponent<engine3d::PerspectiveCamera>(camera);
+        perspective_camera.Position = perspective_camera_transform.Position;
+        getViewPortControl(perspective_camera, deltaTime, on_click_check );
+        perspective_camera_transform.Position = perspective_camera.Position;
+        perspective_camera_transform.Rotation = { perspective_camera.Yaw, perspective_camera.RotationAngle, perspective_camera.Pitch };
+
+
+        perspective_camera.UpdateProjView();
+        
+        //printf("Camera Pos: %f, %f, %f\n", perspective_camera_transform.Position.x + camera.Position.x, perspective_camera_transform.Position.y+ camera.Position.y-1.5f, perspective_camera_transform.Position.z + camera.Position.z);
+
+        m_MainCamera->SetComponent<engine3d::PerspectiveCamera>(perspective_camera);
         m_MainCamera->SetComponent<engine3d::Transform>(perspective_camera_transform);
     }
 
     void MainScene::OnUIUpdate(){
         //Getting our sphere transform to modify it
         auto sphere_data = *m_Sphere->GetComponent<Transform>();
-
+        PerspectiveCamera camera = *m_MainCamera->GetComponent<PerspectiveCamera>();
+        
         //! @note Basic Properties Panel
-        if(ImGui::Begin("Properties Panel")){
+        if(ImGui::Begin("Properties Panel")) {
             //! @note THERE IS AN ERROR. Where if the imgui docking window is outside of the window
             //! @note Imgui will just have a window that appears until when you exit the application and the UI is not docked outside the window
             ui::DrawPanelComponent<MeshComponent>("Sphere", [&](){
@@ -118,7 +134,7 @@ namespace engine3d{
                 ui::DrawVec3UI("rotate 1", sphere_data.Rotation);
                 ui::LoadFileWithUI("Load Mesh 1", m_MeshFilepath);
                 
-                if(m_MeshFilepath != ""){
+                if(m_MeshFilepath != "") {
                     std::filesystem::path relative_path = std::filesystem::relative(m_MeshFilepath, "./");
                     ConsoleLogTrace("Filepath = {}", m_MeshFilepath);
                     ConsoleLogTrace("in branch 1 mesh_file = {}", relative_path.string());
@@ -127,14 +143,31 @@ namespace engine3d{
                     m_MeshFilepath = "";
                 }
             });
+
+            ui::DrawPanelComponent<MeshComponent>("Camera", [&](){
+                glm::vec3 camRot = {camera.Yaw, 0.f, camera.Pitch};
+                ui::DrawVec3UI("pos 1", camera.Position);
+                ui::DrawVec3UI("rotate 1", camRot);
+            });
             ImGui::End();
         }
 
         m_Sphere->SetComponent<Transform>(sphere_data);
     }
 
+    void MainScene::OnPhysicsUpdate()
+    {
+        // m_MainCamera->SetComponent<Transform>({
+        //     .Position = m_MainCamera->GetComponent<Transform>()-> Position + cc.getLinearVelocity(),
+        //     .Rotation = m_MainCamera->GetComponent<Transform>()-> Rotation + cc.getRotationalVelocity()
+        // });
+
+    
+    }
+
     void MainScene::OnSceneRender(){
         Renderer::RenderWithCamera(m_Rocket, m_MainCamera);
-
+        Renderer::RenderWithCamera(m_Sphere, m_MainCamera);
+        Renderer::RenderWithCamera(m_box, m_MainCamera);
     }
 };

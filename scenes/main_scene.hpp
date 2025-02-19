@@ -21,12 +21,12 @@ namespace engine3d{
     private:
         void OnUpdate();
         void OnUIUpdate();
-
+        void OnPhysicsUpdate();
         void OnSceneRender();
         bool on_click_check = false;
         glm::vec2 last_cursor_pos;
 
-        PerspectiveCamera getViewPortControl
+        void getViewPortControl
         (
             PerspectiveCamera& perspective_camera, 
             float deltaTime, bool click_check
@@ -37,5 +37,7 @@ namespace engine3d{
         Ref<SceneObject> m_MainCamera=nullptr;
         Ref<SceneObject> m_Sphere=nullptr;
         Ref<SceneObject> m_Rocket=nullptr;
+        Ref<SceneObject> m_box=nullptr;
+        CharacterController cc = nullptr;
     };
 };

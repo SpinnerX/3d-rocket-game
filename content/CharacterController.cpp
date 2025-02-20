@@ -14,6 +14,50 @@ std::random_device rd;
 std::mt19937 gen(rd());
 std::uniform_real_distribution<> dis(-0.1f, 0.1f); // Random offset for sand effect
 
+static glm::vec4 HSVtoRGB(const glm::vec3& hsv) {
+    int H = (int)(hsv.x * 360.0f);
+    double S = hsv.y;
+    double V = hsv.z;
+
+    double C = S * V;
+    double X = C * (1 - abs(fmod(H / 60.0, 2) - 1));
+    double m = V - C;
+    double Rs, Gs, Bs;
+
+    if (H >= 0 && H < 60) {
+        Rs = C;
+        Gs = X;
+        Bs = 0;
+    }
+    else if (H >= 60 && H < 120) {
+        Rs = X;
+        Gs = C;
+        Bs = 0;
+    }
+    else if (H >= 120 && H < 180) {
+        Rs = 0;
+        Gs = C;
+        Bs = X;
+    }
+    else if (H >= 180 && H < 240) {
+        Rs = 0;
+        Gs = X;
+        Bs = C;
+    }
+    else if (H >= 240 && H < 300) {
+        Rs = X;
+        Gs = 0;
+        Bs = C;
+    }
+    else {
+        Rs = C;
+        Gs = 0;
+        Bs = X;
+    }
+
+    return { (Rs + m), (Gs + m), (Bs + m), 1.0f };
+}
+
 CharacterController::CharacterController() {}
 
 CharacterController::CharacterController(engine3d::SceneScope *p_current_scene)
@@ -39,7 +83,7 @@ CharacterController::CharacterController(engine3d::SceneScope *p_current_scene)
     for(size_t i = 0; i < m_particles.size(); i++){
         m_particles[i] = {};
         m_particles[i].RenderTarget = p_current_scene->CreateNewObject(fmt::format("Particle {}", i));
-        m_particles[i].RenderTarget->SetComponent<engine3d::MeshComponent>({"3d_models/tutorial/colored_cube.obj"});
+        m_particles[i].RenderTarget->SetComponent<engine3d::MeshComponent>({"3d_models/tutorial/sphere.obj"});
     }
     
     
@@ -80,8 +124,6 @@ void CharacterController::OnPhysicsUpdate()
     {
         this->velocity += this->acceleration*deltaTime;
         this->rotation -= this->rotationAcceler*deltaTime;
-
-        EmitParticles();
     }
     if (engine3d::InputPoll::IsKeyPressed(ENGINE_KEY_DOWN))
     {
@@ -109,20 +151,24 @@ void CharacterController::OnPhysicsUpdate()
 }
 
 void CharacterController::EmitParticles(){
+    glm::vec4 ColorBegin = {1.f, 109/255.0f, 41/ 255.0f, 1.0f};
+    glm::vec4 ColorEnd = {1.f, 212/255.0f, 123/255.0f, 1.0f};
     //! @note This is all of the particles logic.
     float deltaTime = engine3d::sync_update::DeltaTime();
     for(auto& obj : m_particles){
         auto transform = obj.RenderTarget->GetComponent<engine3d::Transform>();
         // float life = particle.lifeRemain / particle.lifeTime;
-        glm::vec4 ColorBegin = {254/255.0f, 109/255.0f, 41/ 255.0f, 1.0f};
-        glm::vec4 ColorEnd = {254 / 255.0f, 212/255.0f, 123/255.0f, 1.0f};
+        // glm::vec4 ColorBegin = {1.f, 109/255.0f, 41/ 255.0f, 1.0f};
+        // glm::vec4 ColorEnd = {1.f, 212/255.0f, 123/255.0f, 1.0f};
+        float life = obj.LifeRemaining / obj.LifeTime;
         obj.RenderTarget->SetComponent<engine3d::Transform>({
             // .Position = {transform->Position.x, transform->Position.y - m_gravity, transform->Position.z},
             // .Position = transform->Position + m_velocity * deltaTime,
             .Position = transform->Position - getLinearVelocity() * deltaTime,
             .Rotation = {(Random::Float() * 2.0f * glm::pi<float>()), (Random::Float() * 2.0f * glm::pi<float>()), (Random::Float() * 2.0f * glm::pi<float>())},
             .Scale = transform->Scale,
-            .Color = glm::lerp(ColorEnd, ColorBegin, 1.f),
+            // .Color = {0.f, glm::lerp(ColorEnd, ColorBegin, life).y, glm::lerp(ColorEnd, ColorBegin, life).z, 1.f}
+            .Color = {0.f, 1.f, 0.f, 0.f}
         });
     }
 
@@ -133,10 +179,12 @@ void CharacterController::EmitParticles(){
         glm::vec3 rocket_origin_pos = m_ObjectHandler->GetComponent<engine3d::Transform>()->Position;
 
         initial_transform.Position = rocket_origin_pos + glm::vec3(dis(gen), 0.0f, dis(gen));
-        initial_transform.Scale = glm::vec3(0.05f); // Smaller scale for sand
-        initial_transform.Color = glm::vec4(0.8f, 0.7f, 0.6f, 1.0f);
+        initial_transform.Scale = glm::vec3(0.01f); // Smaller scale for sand
+        // initial_transform.Color = glm::vec4(0.8f, 0.7f, 0.6f, 1.0f);
         // initial_transform.Rotation += glm::vec3(dis(gen), 0.0f, dis(gen));
         initial_transform.Rotation = getRotationalVelocity();
+        float life = m_particles[m_active_particle_count].LifeRemaining / m_particles[m_active_particle_count].LifeTime;
+        initial_transform.Color = HSVtoRGB(glm::lerp(ColorEnd, ColorBegin, life));
         m_particles[m_active_particle_count].RenderTarget->SetComponent<engine3d::Transform>(initial_transform);
 
         if(m_particles[m_active_particle_count].LifeRemaining <= 0.0f){

@@ -25,6 +25,14 @@ namespace engine3d{
     //     operator engine3d::Ref<engine3d::SceneObject>() const { return RenderTarget; }
     // };
 
+    struct TargetCamera{
+        glm::vec3 Position;
+        glm::vec3 Rotation;
+        float Pitch = 0.f;
+        float Yaw = 0.f;
+        float RotationAngle = 0.f;
+    };
+
     class MainScene : public SceneScope{
     public:
         MainScene();
@@ -33,7 +41,6 @@ namespace engine3d{
         virtual ~MainScene(){}
 
     private:
-        void EmitParticles();
         void OnUpdate();
         void OnUIUpdate();
         void OnPhysicsUpdate();
@@ -55,7 +62,11 @@ namespace engine3d{
 
         Ref<SceneObject> m_box[4];
         CharacterController* cc = nullptr;
-        bool m_game_mode = false;
+        // engine3d::PerspectiveCamera m_editor_camera;
+        // engine3d::PerspectiveCamera m_target_camera;
+        engine3d::Ref<engine3d::SceneObject> m_platform=nullptr;
+        std::vector<engine3d::Ref<engine3d::SceneObject>> m_obstacles;
+        bool m_game_mode = true;
         float previous_z_axis=0.f;
     };
 };

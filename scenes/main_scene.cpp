@@ -71,15 +71,17 @@ namespace engine3d{
             srand(i*10);
             height = rand() % 31;
             b->SetComponent<Transform>({
-                .Position = {0.f, -150.10f, static_cast<float>(i*(-10)-30)},
+                .Position = {0.f, -150.10f, static_cast<float>(i*(-10)-50)},
                 .Scale = {2.20f, static_cast<float>(height)+150.f, 2.20f}
             });
             t->SetComponent<Transform>({
-                .Position = {0.f, static_cast<float>(height), static_cast<float>(i*(-10)-30)},
+                .Position = {0.f, static_cast<float>(height)+50, static_cast<float>(i*(-10)-30)},
                 .Scale = {2.20f, static_cast<float>(height)+150.f, 2.20f}
             });
             b->SetComponent<MeshComponent>({"3d_models/cylinder.obj"});
+            t->SetComponent<MeshComponent>({"3d_models/cylinder.obj"});
             m_box.push_back(b);
+            m_box.push_back(t);
         }
 
         sync_update::sync(this, &MainScene::OnUpdate);

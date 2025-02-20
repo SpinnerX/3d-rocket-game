@@ -24,7 +24,7 @@ CharacterController::CharacterController(engine3d::SceneScope *p_current_scene)
         .Position = {0.f, 0.f, 0.f},
         .Rotation = {-1.57079632679f, 0.f, 1.57079632679f},
         .Scale = {.20f,.20f, .20f},
-        .Color = {170.f, 30.f, 2.f, 0.f}
+        .Color = {0.7f, 165.f, 0.f, 0.f}
     });
     m_ObjectHandler->SetComponent<engine3d::MeshComponent>({"3d_models/wallacegrommit.obj"});
     this->velocity = {0.f, 0.f, -0.5f}; 
@@ -80,8 +80,6 @@ void CharacterController::OnPhysicsUpdate()
     {
         this->velocity += this->acceleration*deltaTime;
         this->rotation -= this->rotationAcceler*deltaTime;
-
-        EmitParticles();
     }
     if (engine3d::InputPoll::IsKeyPressed(ENGINE_KEY_DOWN))
     {
@@ -99,12 +97,12 @@ void CharacterController::OnPhysicsUpdate()
     {
         this->rotation = -this->rotationAcceler*deltaTime;
     }
-
+    //Rocket updating
     m_ObjectHandler->SetComponent<engine3d::Transform>({
         .Position = m_ObjectHandler->GetComponent<engine3d::Transform>()->Position + this->velocity*deltaTime,
         .Rotation = m_ObjectHandler->GetComponent<engine3d::Transform>()->Rotation + this->rotation*deltaTime,
         .Scale = {.20f,.20f, .20f},
-        .Color = {170.f, 30.f, 2.f, 0.f}
+        .Color = {0.5f, .6f, 0.f, 0.f}
     });
 }
 

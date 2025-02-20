@@ -27,7 +27,7 @@ CharacterController::CharacterController(engine3d::SceneScope *p_current_scene)
         .Color = {0.7f, 165.f, 0.f, 0.f}
     });
     m_ObjectHandler->SetComponent<engine3d::MeshComponent>({"3d_models/wallacegrommit.obj"});
-    this->velocity = {0.f, 0.f, -0.5f}; 
+    this->velocity = {0.f, 0.f, -1.5f}; 
     this->acceleration = {0.f, 1.f, 0.f};
     this->rotationAcceler = {0.f, 1.f, 0.f};
     this->rotation = {0.f, 0.f, 0.f};

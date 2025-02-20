@@ -52,6 +52,7 @@ namespace engine3d{
         Ref<SceneObject> m_MainCamera=nullptr;
         Ref<SceneObject> m_Sphere=nullptr;
         Ref<SceneObject> m_Rocket=nullptr;
+        Ref<SceneObject> m_moon=nullptr;
 
         Ref<SceneObject> m_box[4];
         CharacterController* cc = nullptr;

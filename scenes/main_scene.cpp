@@ -19,6 +19,8 @@
 constexpr int ROTATION_DIRECTION_X = -1;
 constexpr int ROTATION_DIRECTION_Y = -1;
 
+
+static engine3d::Transform g_platform_transform;
 namespace engine3d{
     MainScene::MainScene(){}
 
@@ -28,11 +30,17 @@ namespace engine3d{
         m_Rocket = *cc;
         
         m_MainCamera =  CreateNewObject("Main Camera");
+        TargetCamera target_camera = {
+            .Position = {0.f, 2.5f, 2.3f},
+            .Rotation = {-90.f, 0.f, -30.f}
+        };
         m_MainCamera->SetComponent<Transform>({
             .Position = {0.f, 2.5f, 2.3f},
             .Rotation = {-90.f, 0.f, -30.f},
             .Scale = {2.80f, 1.f, 3.70f}
         });
+
+        m_MainCamera->SetComponent<TargetCamera>(target_camera);
         m_MainCamera->AddComponent<PerspectiveCamera>();
 
         previous_z_axis = m_MainCamera->GetComponent<Transform>()->Position.z;
@@ -54,34 +62,35 @@ namespace engine3d{
         m_moon->SetComponent<MeshComponent>({"3d_models/tutorial/Ball OBJ.obj"});
 
         glm::vec3 b_Pos = {0.f, 2.10f, -20.30f};
-        int height = 0;
-        std::string objNam = "";
-        
+        // for(Ref<SceneObject>& b : m_box)
+        // {
+        //     b = CreateNewObject("Object2");
+        //     b->SetComponent<Transform>({
+        //         .Position = {0.f, 2.10f, -27.30f},
+        //         .Scale = {2.20f,2.20f, 2.20f}
+        //     });
+        //     b->SetComponent<MeshComponent>({"3d_models/cylinder.obj"});
+        // }
 
-        for(int i = 0; i < 6; i++)
-        {
-            printf("We are looping %d times!\n", i);
-            Ref<SceneObject> b = nullptr;
-            Ref<SceneObject> t = nullptr;
-            objNam = std::format("Object{}", i); 
-            b = CreateNewObject(objNam);
-            objNam = std::format("TObject{}", i);
-            t = CreateNewObject(objNam);
+        m_platform = CreateNewObject("Platform");
+        m_platform->SetComponent<engine3d::Transform>({
+            .Position = {-1.10f, -6.0f, -107.0f},
+            .Rotation = {0.f, 0.f, 0.f},
+            .Scale = {45.60f, 0.20f, 90.0f}
+        });
 
-            srand(i*10);
-            height = rand() % 31;
-            b->SetComponent<Transform>({
-                .Position = {0.f, -150.10f, static_cast<float>(i*(-10)-50)},
-                .Scale = {2.20f, static_cast<float>(height)+150.f, 2.20f}
+        g_platform_transform = *m_platform->GetComponent<Transform>();
+        m_platform->SetComponent<engine3d::MeshComponent>({"3d_models/tutorial/cube.obj"});
+
+        int counter = 0;
+        m_obstacles.resize(100);
+        for(size_t i = 0; i < m_obstacles.size(); i++){
+            m_obstacles[i] = CreateNewObject(fmt::format("Obstacle {}", i));
+            m_obstacles[i]->SetComponent<MeshComponent>({"3d_models/cylinder.obj"});
+            m_obstacles[i]->SetComponent<Transform>({
+                .Position = m_platform->GetComponent<Transform>()->Position,
+                .Scale = {2.20f,2.20f, 2.20f}
             });
-            t->SetComponent<Transform>({
-                .Position = {0.f, static_cast<float>(height)+50, static_cast<float>(i*(-10)-30)},
-                .Scale = {2.20f, static_cast<float>(height)+150.f, 2.20f}
-            });
-            b->SetComponent<MeshComponent>({"3d_models/cylinder.obj"});
-            t->SetComponent<MeshComponent>({"3d_models/cylinder.obj"});
-            m_box.push_back(b);
-            m_box.push_back(t);
         }
 
         sync_update::sync(this, &MainScene::OnUpdate);
@@ -149,6 +158,8 @@ namespace engine3d{
     {
         Transform perspective_camera_transform = *m_MainCamera->GetComponent<Transform>();
         PerspectiveCamera perspective_camera = *m_MainCamera->GetComponent<PerspectiveCamera>();
+        TargetCamera target = *m_MainCamera->GetComponent<TargetCamera>();
+
         float deltaTime = sync_update::DeltaTime();
         
         perspective_camera.Pitch = perspective_camera_transform.Rotation.z;
@@ -156,13 +167,17 @@ namespace engine3d{
 
         if (editor)
         {
-            // ConsoleLogTrace("Editor Enabled!!!");
+            ConsoleLogTrace("Editor Enabled!!!");
             getViewPortControl(perspective_camera, deltaTime, on_click_check );
+
+            m_MainCamera->SetComponent<PerspectiveCamera>(perspective_camera);
             //printf("Camera Pos: %f, %f, %f\n", perspective_camera_transform.Position.x + camera.Position.x, perspective_camera_transform.Position.y+ camera.Position.y-1.5f, perspective_camera_transform.Position.z + camera.Position.z);
         }
         
         //! @note This should only be set
         if(m_game_mode){
+            Transform perspective_camera_transform = *m_MainCamera->GetComponent<Transform>();
+            PerspectiveCamera perspective_camera = *m_MainCamera->GetComponent<PerspectiveCamera>();
             // m_MainCamera->SetComponent<Transform>({
             //     // .Position = {0.f, 2.5f, 2.3f},
             //     // .Position = {m_Rocket->GetComponent<engine3d::Transform>()->Position.x, m_Rocket->GetComponent<engine3d::Transform>()->Position.y, 2.3f},
@@ -176,17 +191,12 @@ namespace engine3d{
 
             // m_MainCamera->SetComponent<engine3d::PerspectiveCamera>(camera);
             auto t = *m_Rocket->GetComponent<Transform>();
-            float x = t.Position.x;
-            float y = t.Position.y;
-            float z = t.Position.z;
-            t.Position = {x, y + 2.5f, z + 2.3f};
-            t.Rotation = {-90.f, 0.f, -30.f};
-
+            auto x = t.Position.x;
+            auto y = t.Position.y;
+            auto z = t.Position.z;
             // perspective_camera.Position = {x, 2.5f, z - 2.3f};
             // perspective_camera.Position = {x, y, -(z - previous_z_axis)};
             perspective_camera.Position = t.Position;
-            perspective_camera.Pitch = t.Rotation.z;
-            perspective_camera.Yaw = t.Rotation.x;
             m_game_mode = false;
         }
 
@@ -248,8 +258,20 @@ namespace engine3d{
                 ui::DrawVec3UI("pos 1", camera.Position);
                 ui::DrawVec3UI("rotate 1", camRot);
             });
+
+            // g_platform_transform
+            ui::DrawPanelComponent<MeshComponent>("Platform", [&](){
+                // glm::vec3 camRot = {camera.Yaw, 0.f, camera.Pitch};
+                // ui::DrawVec3UI("pos 1", camera.Position);
+                ui::DrawVec3UI("position", g_platform_transform.Position);
+                ui::DrawVec3UI("rotation", g_platform_transform.Rotation);
+                ui::DrawVec3UI("scale", g_platform_transform.Scale);
+            });
+
             ImGui::End();
         }
+
+        m_platform->SetComponent<Transform>(g_platform_transform);
         m_Rocket->SetComponent<Transform>(rocket_data);
         m_Sphere->SetComponent<Transform>(sphere_data);
     }
@@ -281,6 +303,7 @@ namespace engine3d{
 
     void MainScene::OnSceneRender(){
         Renderer::RenderWithCamera(m_Rocket, m_MainCamera);
+        Renderer::RenderWithCamera(m_platform, m_MainCamera);
         Renderer::RenderWithCamera(m_moon, m_MainCamera);
         for(auto& pip : m_box)
         {
@@ -295,7 +318,15 @@ namespace engine3d{
             // ConsoleLogTrace("Particle.IsAlive = {}", particle.IsAlive);
             engine3d::Renderer::RenderWithCamera(particle.RenderTarget, m_MainCamera);
         }
-        Renderer::RenderWithCamera(m_Sphere, m_MainCamera);
-        // Renderer::RenderWithCamera(m_box, m_MainCamera);
+
+
+        for(auto& obstacle : m_obstacles){
+            engine3d::Renderer::RenderWithCamera(obstacle, m_MainCamera);
+        }
+
+        // for(Ref<SceneObject>& b : m_box){
+        //     Renderer::RenderWithCamera(b, m_MainCamera);
+        // }
+        //Renderer::RenderWithCamera(m_Sphere, m_MainCamera);
     }
 };

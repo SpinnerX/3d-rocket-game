@@ -3,6 +3,9 @@
 #include <core/update_handlers/sync_update.hpp>
 #include <glm/fwd.hpp>
 #include <scene/components/components.hpp>
+#include <format> 
+#include <cstdlib>
+#include <ctime>
 
 // #include "random.hpp"
 
@@ -44,22 +47,39 @@ namespace engine3d{
 
         m_moon = CreateNewObject("moon");
         m_moon->SetComponent<Transform>({
-            .Position = {0.f, 0.10f, -100.30f},
+            .Position = {0.f, 0.10f, -200.30f},
             .Scale = {20.20f,20.20f, 20.20f},
             .Color = {240.f, 131.f, 58.f, 1.f}
         });
         m_moon->SetComponent<MeshComponent>({"3d_models/tutorial/Ball OBJ.obj"});
 
         glm::vec3 b_Pos = {0.f, 2.10f, -20.30f};
-        int i = 0;
-        for(Ref<SceneObject> b : m_box)
+        int height = 0;
+        std::string objNam = "";
+        
+
+        for(int i = 0; i < 6; i++)
         {
-            b = CreateNewObject("Object2");
+            printf("We are looping %d times!\n", i);
+            Ref<SceneObject> b = nullptr;
+            Ref<SceneObject> t = nullptr;
+            objNam = std::format("Object{}", i); 
+            b = CreateNewObject(objNam);
+            objNam = std::format("TObject{}", i);
+            t = CreateNewObject(objNam);
+
+            srand(i*10);
+            height = rand() % 31;
             b->SetComponent<Transform>({
-                .Position = {0.f, 2.10f, -27.30f},
-                .Scale = {2.20f,2.20f, 2.20f}
+                .Position = {0.f, -150.10f, static_cast<float>(i*(-10)-30)},
+                .Scale = {2.20f, static_cast<float>(height)+150.f, 2.20f}
+            });
+            t->SetComponent<Transform>({
+                .Position = {0.f, static_cast<float>(height), static_cast<float>(i*(-10)-30)},
+                .Scale = {2.20f, static_cast<float>(height)+150.f, 2.20f}
             });
             b->SetComponent<MeshComponent>({"3d_models/cylinder.obj"});
+            m_box.push_back(b);
         }
 
         sync_update::sync(this, &MainScene::OnUpdate);
@@ -134,7 +154,7 @@ namespace engine3d{
 
         if (editor)
         {
-            ConsoleLogTrace("Editor Enabled!!!");
+            // ConsoleLogTrace("Editor Enabled!!!");
             getViewPortControl(perspective_camera, deltaTime, on_click_check );
             //printf("Camera Pos: %f, %f, %f\n", perspective_camera_transform.Position.x + camera.Position.x, perspective_camera_transform.Position.y+ camera.Position.y-1.5f, perspective_camera_transform.Position.z + camera.Position.z);
         }
@@ -154,12 +174,17 @@ namespace engine3d{
 
             // m_MainCamera->SetComponent<engine3d::PerspectiveCamera>(camera);
             auto t = *m_Rocket->GetComponent<Transform>();
-            auto x = t.Position.x;
-            auto y = t.Position.y;
-            auto z = t.Position.z;
+            float x = t.Position.x;
+            float y = t.Position.y;
+            float z = t.Position.z;
+            t.Position = {x, y + 2.5f, z + 2.3f};
+            t.Rotation = {-90.f, 0.f, -30.f};
+
             // perspective_camera.Position = {x, 2.5f, z - 2.3f};
             // perspective_camera.Position = {x, y, -(z - previous_z_axis)};
             perspective_camera.Position = t.Position;
+            perspective_camera.Pitch = t.Rotation.z;
+            perspective_camera.Yaw = t.Rotation.x;
             m_game_mode = false;
         }
 
@@ -243,6 +268,7 @@ namespace engine3d{
             // });
 
             float deltaTime = sync_update::DeltaTime();
+            
             m_MainCamera->SetComponent<Transform>({
                 .Position = m_MainCamera->GetComponent<Transform>()-> Position + cc->getLinearVelocity()*deltaTime,
                 .Rotation = m_MainCamera->GetComponent<Transform>()-> Rotation + cc->getRotationalVelocity()*deltaTime
@@ -254,6 +280,11 @@ namespace engine3d{
     void MainScene::OnSceneRender(){
         Renderer::RenderWithCamera(m_Rocket, m_MainCamera);
         Renderer::RenderWithCamera(m_moon, m_MainCamera);
+        for(auto& pip : m_box)
+        {
+            // printf("We are loopingon render!\n");
+            Renderer::RenderWithCamera(pip, m_MainCamera);
+        }
 
         for(auto& particle : cc->get_particles()){
             if(particle.RenderTarget == nullptr) continue;

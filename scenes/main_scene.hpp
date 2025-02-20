@@ -52,9 +52,9 @@ namespace engine3d{
         Ref<SceneObject> m_MainCamera=nullptr;
         Ref<SceneObject> m_Sphere=nullptr;
         Ref<SceneObject> m_Rocket=nullptr;
+        std::vector<Ref<SceneObject>> m_box;
         Ref<SceneObject> m_moon=nullptr;
 
-        Ref<SceneObject> m_box[4];
         CharacterController* cc = nullptr;
         bool m_game_mode = false;
         float previous_z_axis=0.f;

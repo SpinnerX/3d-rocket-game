@@ -8,6 +8,7 @@ build_application(
     game_world.cpp
     scenes/main_scene.cpp
     content/CharacterController.cpp
+    random.cpp
 
     PACKAGES
     imguidocking

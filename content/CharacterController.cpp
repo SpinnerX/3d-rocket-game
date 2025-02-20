@@ -5,6 +5,15 @@
 
 #include "CharacterController.hpp"
 
+#include "random.hpp"
+
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/compatibility.hpp>
+
+std::random_device rd;
+std::mt19937 gen(rd());
+std::uniform_real_distribution<> dis(-0.1f, 0.1f); // Random offset for sand effect
+
 CharacterController::CharacterController() {}
 
 CharacterController::CharacterController(engine3d::SceneScope *p_current_scene)
@@ -23,7 +32,16 @@ CharacterController::CharacterController(engine3d::SceneScope *p_current_scene)
     this->rotationAcceler = {0.f, 1.f, 0.f};
     this->rotation = {0.f, 0.f, 0.f};
     
+    m_particles.resize(1000);
 
+    m_particles_origin = m_ObjectHandler->GetComponent<engine3d::Transform>()->Position;
+
+    for(size_t i = 0; i < m_particles.size(); i++){
+        m_particles[i] = {};
+        m_particles[i].RenderTarget = p_current_scene->CreateNewObject(fmt::format("Particle {}", i));
+        m_particles[i].RenderTarget->SetComponent<engine3d::MeshComponent>({"3d_models/tutorial/colored_cube.obj"});
+    }
+    
     
     engine3d::sync_update::sync(this, &CharacterController::OnUpdate);
     engine3d::sync_update::sync_physics(this, &CharacterController::OnPhysicsUpdate);
@@ -62,12 +80,16 @@ void CharacterController::OnPhysicsUpdate()
     {
         this->velocity += this->acceleration*deltaTime;
         this->rotation -= this->rotationAcceler*deltaTime;
+
+        EmitParticles();
     }
     if (engine3d::InputPoll::IsKeyPressed(ENGINE_KEY_DOWN))
     {
         this->velocity -= this->acceleration*deltaTime;
         this->rotation += this->rotationAcceler*deltaTime;
     }
+
+    EmitParticles();
     
     if( !(-.5f < m_ObjectHandler->GetComponent<engine3d::Transform>()->Rotation.y ) )
     {
@@ -78,15 +100,57 @@ void CharacterController::OnPhysicsUpdate()
         this->rotation = -this->rotationAcceler*deltaTime;
     }
 
-    
-
-    
     m_ObjectHandler->SetComponent<engine3d::Transform>({
         .Position = m_ObjectHandler->GetComponent<engine3d::Transform>()->Position + this->velocity*deltaTime,
         .Rotation = m_ObjectHandler->GetComponent<engine3d::Transform>()->Rotation + this->rotation*deltaTime,
         .Scale = {.20f,.20f, .20f},
         .Color = {170.f, 30.f, 2.f, 0.f}
     });
+}
+
+void CharacterController::EmitParticles(){
+    //! @note This is all of the particles logic.
+    float deltaTime = engine3d::sync_update::DeltaTime();
+    for(auto& obj : m_particles){
+        auto transform = obj.RenderTarget->GetComponent<engine3d::Transform>();
+        // float life = particle.lifeRemain / particle.lifeTime;
+        glm::vec4 ColorBegin = {254/255.0f, 109/255.0f, 41/ 255.0f, 1.0f};
+        glm::vec4 ColorEnd = {254 / 255.0f, 212/255.0f, 123/255.0f, 1.0f};
+        obj.RenderTarget->SetComponent<engine3d::Transform>({
+            // .Position = {transform->Position.x, transform->Position.y - m_gravity, transform->Position.z},
+            // .Position = transform->Position + m_velocity * deltaTime,
+            .Position = transform->Position - getLinearVelocity() * deltaTime,
+            .Rotation = {(Random::Float() * 2.0f * glm::pi<float>()), (Random::Float() * 2.0f * glm::pi<float>()), (Random::Float() * 2.0f * glm::pi<float>())},
+            .Scale = transform->Scale,
+            .Color = glm::lerp(ColorEnd, ColorBegin, 1.f),
+        });
+    }
+
+    //! @note These areeeere particles that are going to be activated (rendered)
+    if(m_active_particle_count < m_particles.size()){
+        engine3d::Transform initial_transform;
+        // rocket's current position is the particle's origin
+        glm::vec3 rocket_origin_pos = m_ObjectHandler->GetComponent<engine3d::Transform>()->Position;
+
+        initial_transform.Position = rocket_origin_pos + glm::vec3(dis(gen), 0.0f, dis(gen));
+        initial_transform.Scale = glm::vec3(0.05f); // Smaller scale for sand
+        initial_transform.Color = glm::vec4(0.8f, 0.7f, 0.6f, 1.0f);
+        // initial_transform.Rotation += glm::vec3(dis(gen), 0.0f, dis(gen));
+        initial_transform.Rotation = getRotationalVelocity();
+        m_particles[m_active_particle_count].RenderTarget->SetComponent<engine3d::Transform>(initial_transform);
+
+        if(m_particles[m_active_particle_count].LifeRemaining <= 0.0f){
+            m_particles[m_active_particle_count].IsAlive = false;
+        }
+
+        m_particles[m_active_particle_count].LifeTime -= deltaTime;
+        m_active_particle_count++;
+    }
+    else{
+        // This just resets the counter so we can continously spawn particles (which u probably dont want to do and have some lifetime to control how long particles live lol)
+        m_active_particle_count = 0;
+    }
+
 }
 
 // void CharacterController::updating()

@@ -1,6 +1,17 @@
 #include "main_scene.hpp"
 #include <core/ui/widgets.hpp>
+#include <core/update_handlers/sync_update.hpp>
 #include <glm/fwd.hpp>
+#include <scene/components/components.hpp>
+
+// #include "random.hpp"
+
+// #define GLM_ENABLE_EXPERIMENTAL
+// #include <glm/gtx/compatibility.hpp>
+
+// std::random_device rd;
+// std::mt19937 gen(rd());
+// std::uniform_real_distribution<> dis(-0.1f, 0.1f); // Random offset for sand effect
 
 constexpr int ROTATION_DIRECTION_X = -1;
 constexpr int ROTATION_DIRECTION_Y = -1;
@@ -21,6 +32,8 @@ namespace engine3d{
         });
         m_MainCamera->AddComponent<PerspectiveCamera>();
 
+        previous_z_axis = m_MainCamera->GetComponent<Transform>()->Position.z;
+
         m_Sphere = CreateNewObject("backdrop");
         m_Sphere->SetComponent<Transform>({
             .Position = {0.f, 2.10f, -7.30f},
@@ -40,7 +53,6 @@ namespace engine3d{
             });
             b->SetComponent<MeshComponent>({"3d_models/cylinder.obj"});
         }
-        
 
         sync_update::sync(this, &MainScene::OnUpdate);
         sync_update::sync_physics(this, &MainScene::OnPhysicsUpdate);
@@ -114,13 +126,43 @@ namespace engine3d{
 
         if (editor)
         {
-            
+            ConsoleLogTrace("Editor Enabled!!!");
             getViewPortControl(perspective_camera, deltaTime, on_click_check );
             //printf("Camera Pos: %f, %f, %f\n", perspective_camera_transform.Position.x + camera.Position.x, perspective_camera_transform.Position.y+ camera.Position.y-1.5f, perspective_camera_transform.Position.z + camera.Position.z);
         }
+        
+        //! @note This should only be set
+        if(m_game_mode){
+            // m_MainCamera->SetComponent<Transform>({
+            //     // .Position = {0.f, 2.5f, 2.3f},
+            //     // .Position = {m_Rocket->GetComponent<engine3d::Transform>()->Position.x, m_Rocket->GetComponent<engine3d::Transform>()->Position.y, 2.3f},
+            //     .Position = m_Rocket->GetComponent<engine3d::Transform>()->Position,
+            //     .Rotation = {-90.f, 0.f, -30.f},
+            //     .Scale = {2.80f, 1.f, 3.70f}
+            // });
+            // PerspectiveCamera camera = *m_MainCamera->GetComponent<PerspectiveCamera>();
+            // camera.Position = m_Rocket->GetComponent<engine3d::Transform>()->Position;
+            // camera.Position = {m_Rocket->GetComponent<engine3d::Transform>()->Position.x, m_Rocket->GetComponent<engine3d::Transform>()->Position.y, 2.3f};
+
+            // m_MainCamera->SetComponent<engine3d::PerspectiveCamera>(camera);
+            auto t = *m_Rocket->GetComponent<Transform>();
+            auto x = t.Position.x;
+            auto y = t.Position.y;
+            auto z = t.Position.z;
+            // perspective_camera.Position = {x, 2.5f, z - 2.3f};
+            // perspective_camera.Position = {x, y, -(z - previous_z_axis)};
+            perspective_camera.Position = t.Position;
+            m_game_mode = false;
+        }
+
         if(InputPoll::IsKeyPressed(ENGINE_KEY_F)){
-            editor = !editor;
-            
+            editor = true;
+            m_game_mode = false;
+        }
+
+        if(InputPoll::IsKeyPressed(ENGINE_KEY_G)){
+            editor = false;
+            m_game_mode = true;
         }
 
         perspective_camera_transform.Position = perspective_camera.Position;
@@ -131,6 +173,7 @@ namespace engine3d{
         m_MainCamera->SetComponent<engine3d::PerspectiveCamera>(perspective_camera);
         m_MainCamera->SetComponent<engine3d::Transform>(perspective_camera_transform);
     }
+
 
     void MainScene::OnUIUpdate(){
         //Getting our sphere transform to modify it
@@ -193,8 +236,8 @@ namespace engine3d{
 
             float deltaTime = sync_update::DeltaTime();
             m_MainCamera->SetComponent<Transform>({
-            .Position = m_MainCamera->GetComponent<Transform>()-> Position + cc->getLinearVelocity()*deltaTime,
-            .Rotation = m_MainCamera->GetComponent<Transform>()-> Rotation + cc->getRotationalVelocity()*deltaTime
+                .Position = m_MainCamera->GetComponent<Transform>()-> Position + cc->getLinearVelocity()*deltaTime,
+                .Rotation = m_MainCamera->GetComponent<Transform>()-> Rotation + cc->getRotationalVelocity()*deltaTime
             });
         }
 
@@ -202,6 +245,14 @@ namespace engine3d{
 
     void MainScene::OnSceneRender(){
         Renderer::RenderWithCamera(m_Rocket, m_MainCamera);
+
+        for(auto& particle : cc->get_particles()){
+            if(particle.RenderTarget == nullptr) continue;
+            // if(!particle.IsAlive) continue;
+    
+            // ConsoleLogTrace("Particle.IsAlive = {}", particle.IsAlive);
+            engine3d::Renderer::RenderWithCamera(particle.RenderTarget, m_MainCamera);
+        }
         //Renderer::RenderWithCamera(m_Sphere, m_MainCamera);
         // Renderer::RenderWithCamera(m_box, m_MainCamera);
     }

@@ -7,10 +7,24 @@
 #include <renderer/renderer.hpp>
 #include "content/CharacterController.hpp"
 
-// #include <core/ui/widgets.hpp>
 
 
 namespace engine3d{
+    // struct particle{
+    //     engine3d::Ref<engine3d::SceneObject> RenderTarget=nullptr;
+    //     bool IsAlive = true;
+    //     glm::vec3 Velocity;
+    //     glm::vec3 VelocityVariation;
+    
+    //     float LifeTime=1.f;
+    //     float LifeRemaining=0.f;
+    
+    
+    //     operator engine3d::Ref<engine3d::SceneObject>(){ return RenderTarget; }
+    
+    //     operator engine3d::Ref<engine3d::SceneObject>() const { return RenderTarget; }
+    // };
+
     class MainScene : public SceneScope{
     public:
         MainScene();
@@ -19,6 +33,7 @@ namespace engine3d{
         virtual ~MainScene(){}
 
     private:
+        void EmitParticles();
         void OnUpdate();
         void OnUIUpdate();
         void OnPhysicsUpdate();
@@ -40,5 +55,7 @@ namespace engine3d{
 
         Ref<SceneObject> m_box[4];
         CharacterController* cc = nullptr;
+        bool m_game_mode = false;
+        float previous_z_axis=0.f;
     };
 };

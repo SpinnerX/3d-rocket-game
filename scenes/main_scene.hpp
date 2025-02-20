@@ -25,7 +25,7 @@ namespace engine3d{
         void OnSceneRender();
         bool on_click_check = false;
         glm::vec2 last_cursor_pos;
-
+        bool editor = false;
         void getViewPortControl
         (
             PerspectiveCamera& perspective_camera, 
@@ -37,7 +37,8 @@ namespace engine3d{
         Ref<SceneObject> m_MainCamera=nullptr;
         Ref<SceneObject> m_Sphere=nullptr;
         Ref<SceneObject> m_Rocket=nullptr;
-        Ref<SceneObject> m_box=nullptr;
-        CharacterController cc = nullptr;
+
+        Ref<SceneObject> m_box[4];
+        CharacterController* cc = nullptr;
     };
 };

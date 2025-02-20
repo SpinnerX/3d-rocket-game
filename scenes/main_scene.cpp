@@ -46,9 +46,17 @@ namespace engine3d{
         m_Sphere->SetComponent<Transform>({
             .Position = {0.f, 2.10f, -7.30f},
             .Scale = {200.20f,200.20f, 200.20f},
-            .Color = {0.3f, 0.4f, 0.5f, 1.f}
+            .Color = {0.3f, 0.4f, 0.5f, 0.f}
         });
         m_Sphere->SetComponent<MeshComponent>({"3d_models/tutorial/colored_cube.obj"});
+
+        m_moon = CreateNewObject("moon");
+        m_moon->SetComponent<Transform>({
+            .Position = {0.f, 0.10f, -100.30f},
+            .Scale = {20.20f,20.20f, 20.20f},
+            .Color = {240.f, 131.f, 58.f, 1.f}
+        });
+        m_moon->SetComponent<MeshComponent>({"3d_models/tutorial/Ball OBJ.obj"});
 
         glm::vec3 b_Pos = {0.f, 2.10f, -20.30f};
         // for(Ref<SceneObject>& b : m_box)
@@ -304,6 +312,7 @@ namespace engine3d{
     void MainScene::OnSceneRender(){
         Renderer::RenderWithCamera(m_Rocket, m_MainCamera);
         Renderer::RenderWithCamera(m_platform, m_MainCamera);
+        Renderer::RenderWithCamera(m_moon, m_MainCamera);
 
         for(auto& particle : cc->get_particles()){
             if(particle.RenderTarget == nullptr) continue;
@@ -322,6 +331,5 @@ namespace engine3d{
         //     Renderer::RenderWithCamera(b, m_MainCamera);
         // }
         //Renderer::RenderWithCamera(m_Sphere, m_MainCamera);
-        // Renderer::RenderWithCamera(m_box, m_MainCamera);
     }
 };

@@ -65,9 +65,6 @@ namespace engine3d{
         CharacterController* cc = nullptr;
         // engine3d::PerspectiveCamera m_editor_camera;
         // engine3d::PerspectiveCamera m_target_camera;
-        engine3d::Ref<engine3d::SceneObject> m_platform=nullptr;
-        std::vector<engine3d::Ref<engine3d::SceneObject>> m_obstacles;
         bool m_game_mode = true;
-        float previous_z_axis=0.f;
     };
 };

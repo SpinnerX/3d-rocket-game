@@ -43,8 +43,6 @@ namespace engine3d{
         m_MainCamera->SetComponent<TargetCamera>(target_camera);
         m_MainCamera->AddComponent<PerspectiveCamera>();
 
-        previous_z_axis = m_MainCamera->GetComponent<Transform>()->Position.z;
-
         m_Sphere = CreateNewObject("backdrop");
         m_Sphere->SetComponent<Transform>({
             .Position = {0.f, 2.10f, -7.30f},
@@ -78,12 +76,14 @@ namespace engine3d{
             srand(i*10);
             height = rand() % 31;
             b->SetComponent<Transform>({
-                .Position = {0.f, -150.10f, static_cast<float>(i*(-10)-50)},
-                .Scale = {2.20f, static_cast<float>(height)+150.f, 2.20f}
+                .Position = {0.f, -130.10f, static_cast<float>(i*(-10)-50)},
+                .Scale = {2.20f, static_cast<float>(height)+130.f, 2.20f}
             });
+            
+            //anything greater than 200 is the gap size
             t->SetComponent<Transform>({
-                .Position = {0.f, static_cast<float>(height)+50, static_cast<float>(i*(-10)-30)},
-                .Scale = {2.20f, static_cast<float>(height)+150.f, 2.20f}
+                .Position = {0.f, static_cast<float>(height)+205.f, static_cast<float>(i*(-10)-50)},
+                .Scale = {2.20f, 200.f, 2.20f}
             });
             b->SetComponent<MeshComponent>({"3d_models/cylinder.obj"});
             t->SetComponent<MeshComponent>({"3d_models/cylinder.obj"});
@@ -268,7 +268,7 @@ namespace engine3d{
             ImGui::End();
         }
 
-        m_platform->SetComponent<Transform>(g_platform_transform);
+        
         m_Rocket->SetComponent<Transform>(rocket_data);
         m_Sphere->SetComponent<Transform>(sphere_data);
     }
@@ -300,7 +300,6 @@ namespace engine3d{
 
     void MainScene::OnSceneRender(){
         Renderer::RenderWithCamera(m_Rocket, m_MainCamera);
-        Renderer::RenderWithCamera(m_platform, m_MainCamera);
         Renderer::RenderWithCamera(m_moon, m_MainCamera);
         for(auto& pip : m_box)
         {
@@ -314,11 +313,6 @@ namespace engine3d{
     
             // ConsoleLogTrace("Particle.IsAlive = {}", particle.IsAlive);
             engine3d::Renderer::RenderWithCamera(particle.RenderTarget, m_MainCamera);
-        }
-
-
-        for(auto& obstacle : m_obstacles){
-            engine3d::Renderer::RenderWithCamera(obstacle, m_MainCamera);
         }
 
         // for(Ref<SceneObject>& b : m_box){

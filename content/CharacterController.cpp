@@ -65,7 +65,7 @@ CharacterController::CharacterController(engine3d::SceneScope *p_current_scene)
     // moon : 240.f, 131.f, 58.f, 1.f
     m_ObjectHandler = p_current_scene->CreateNewObject("Rocket");
     m_ObjectHandler->SetComponent<engine3d::Transform>({
-        .Position = {0.f, 0.f, 0.f},
+        .Position = {0.f, 15.f, 0.f},
         .Rotation = {-1.57079632679f, 0.f, 1.57079632679f},
         .Scale = {.20f,.20f, .20f},
         .Color = {0.7f, 165.f, 0.f, 0.f}

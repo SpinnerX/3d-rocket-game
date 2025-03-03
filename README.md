@@ -26,11 +26,11 @@ Location of the executable to run is: `./build/Release/Starter`
 Due to time constraints, could not get collisions implemented in time. In the image is the game we've submitted to the game jam.
 
 
-https://github.com/SpinnerX/3d-rocket-game/readme_assets/game_image.png
+[![Watch the video]](https://github.com/SpinnerX/3d-rocket-game/readme_assets/game_image.png)
 
 
 ### Gameplay
 
 This was the gameplay for the actual game.
 
-https://github.com/SpinnerX/3d-rocket-game/readme_assets/gameplay_video.mp4
+[![Watch the video]](https://github.com/SpinnerX/3d-rocket-game/readme_assets/gameplay_video.mp4)

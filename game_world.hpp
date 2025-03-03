@@ -1,16 +1,14 @@
 #pragma once
 #include "scenes/main_scene.hpp"
-#include <engine3d/core/core.hpp>
-#include <engine3d/core/scene/world.hpp>
+#include <atlas/core/core.hpp>
+#include <atlas/core/scene/world.hpp>
 
-namespace engine3d{
-    class RocketWorld{
-    public:
-        RocketWorld();
-        RocketWorld(const std::string& Tag);
+class rocket_world{
+public:
+    rocket_world();
+    rocket_world(const std::string& p_tag);
 
-    private:
-        WorldScope m_CurrentWorldContext;
-        Ref<MainScene> m_MainCurrentScene = nullptr;
-    };
+private:
+    atlas::world_scope m_current_world_context;
+    atlas::ref<main_scene> m_main_scene = nullptr;
 };

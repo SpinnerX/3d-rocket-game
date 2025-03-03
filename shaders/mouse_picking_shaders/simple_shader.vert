@@ -20,16 +20,16 @@ layout(set = 0, binding = 0) uniform GlobalCameraUbo{
     mat4 Projection;
     mat4 View;
     mat4 Model;
-    vec3 LightTransform;
+    vec3 Lightatlas::Transform;
     // vec4 Color;
 } camera_ubo;
 
 layout(push_constant) uniform Push {
-    // mat4 Transform; // proj * view
+    // mat4 atlas::Transform; // proj * view
     mat4 Projection;
     mat4 View;
     mat4 Model;
-    vec3 LightTransform;
+    vec3 Lightatlas::Transform;
     vec4 Color;
 } push;
 
@@ -38,13 +38,13 @@ layout(push_constant) uniform Push {
 // } properties;
 
 // const vec3 dir_to_light = normalize(vec3(1.0, -3.0, -1.0));
-// vec3 light_transform = vec3(1.0, -3.0, -1.0);
+// vec3 light_atlas::Transform = vec3(1.0, -3.0, -1.0);
 // const vec3 dir_to_light = normalize(vec3(1.0, -3.0, -1.0));
-// vec3 dir_to_light = normalize(push.LightTransform);
+// vec3 dir_to_light = normalize(push.Lightatlas::Transform);
 // const vec3 dir_to_light = normalize();
 
 /*
-vec3 dir_to_light = normalize(camera_ubo.LightTransform);
+vec3 dir_to_light = normalize(camera_ubo.Lightatlas::Transform);
 const float AMBIENT = 0.2;
 void main(){
     gl_Position = (camera_ubo.Projection * camera_ubo.View * camera_ubo.Model) * vec4(Position, 1.0);
@@ -60,7 +60,7 @@ void main(){
 
 
 
-vec3 dir_to_light = normalize(push.LightTransform);
+vec3 dir_to_light = normalize(push.Lightatlas::Transform);
 const float AMBIENT = 0.2;
 void main(){
     gl_Position = (push.Projection * push.View * push.Model) * vec4(Position, 1.0);

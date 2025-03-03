@@ -1,11 +1,9 @@
 #include "game_world.hpp"
 
-namespace engine3d{
-    RocketWorld::RocketWorld(){}
+rocket_world::rocket_world(){}
 
-    RocketWorld::RocketWorld(const std::string& Tag){
-        m_CurrentWorldContext = WorldScope(Tag);
-        m_MainCurrentScene = CreateRef<MainScene>("LevelScene");
-        m_CurrentWorldContext.AddScene(m_MainCurrentScene);
-    }
-};
+rocket_world::rocket_world(const std::string& p_tag){
+    m_current_world_context = atlas::world_scope(p_tag);
+    m_main_scene = atlas::create_ref<main_scene>("LevelScene");
+    m_current_world_context.add_scene(m_main_scene);
+}

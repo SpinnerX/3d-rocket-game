@@ -7,27 +7,14 @@ build_application(
     application.cpp
     game_world.cpp
     scenes/main_scene.cpp
-    content/CharacterController.cpp
+    content/character_controller.cpp
     random.cpp
 
     PACKAGES
-    imguidocking
-    stb
-    flecs
-    tinyobjloader
-    engine3d-nfd
-    engine3d
-
+    atlas
 
     LINK_PACKAGES
-    imguidocking::imguidocking
-    stb::stb
-    flecs::flecs_static
-    tinyobjloader::tinyobjloader
-    engine3d-nfd::engine3d-nfd
-
-
-    engine3d::engine3d
+    atlas::atlas
 )
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_LIST_DIR})

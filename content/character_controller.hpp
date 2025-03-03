@@ -3,10 +3,10 @@
 #include <core/scene/scene.hpp>
 #include <core/core.hpp>
 #include <core/update_handlers/sync_update.hpp>
-#include <core/event/input_poll.hpp>
+#include <core/event/event.hpp>
 
 struct particle{
-    engine3d::Ref<engine3d::SceneObject> RenderTarget=nullptr;
+    atlas::ref<atlas::scene_object> RenderTarget=nullptr;
     bool IsAlive = true;
     glm::vec3 Velocity;
     glm::vec3 VelocityVariation;
@@ -15,31 +15,31 @@ struct particle{
     float LifeRemaining=0.f;
 
 
-    operator engine3d::Ref<engine3d::SceneObject>(){ return RenderTarget; }
+    operator atlas::ref<atlas::scene_object>(){ return RenderTarget; }
 
-    operator engine3d::Ref<engine3d::SceneObject>() const { return RenderTarget; }
+    operator atlas::ref<atlas::scene_object>() const { return RenderTarget; }
 };
 
-class CharacterController {
+class character_controller {
 public:
-    CharacterController();
-    CharacterController(engine3d::SceneScope* p_current_scene);
-    virtual ~CharacterController();
-    void setAcceleration(glm::vec3 acceler); 
-    glm::vec3 getLinearVelocity();
-    glm::vec3 getRotationalVelocity();
-    glm::vec3 getLocation();
-    void OnUpdate();
-    void OnPhysicsUpdate();
-    void setLinearVelocity(engine3d::Transform moveVector);
+    character_controller();
+    character_controller(atlas::scene_scope* p_current_scene);
+    virtual ~character_controller();
+    void set_acceleration(glm::vec3 acceler); 
+    glm::vec3 get_linear_velocity();
+    glm::vec3 get_rotation_velocity();
+    glm::vec3 get_location();
+    void on_update();
+    void on_physics_update();
+    void set_linear_velocity(atlas::Transform moveVector);
 
-    operator engine3d::Ref<engine3d::SceneObject>(){ return m_ObjectHandler; }
+    operator atlas::ref<atlas::scene_object>(){ return m_player_object; }
 
     // operator std::vector<particle>() const { return m_particles; }
     std::vector<particle> get_particles() const { return m_particles; }
 
 private:
-    void EmitParticles();
+    void emit_particles();
 
 private:
     glm::vec3 velocity;
@@ -47,8 +47,8 @@ private:
     glm::vec3 rotationAcceler;
     glm::vec3 location;
     glm::vec3 acceleration;
-    std::string objectRef = "";
-    engine3d::Ref<engine3d::SceneObject> m_ObjectHandler;
+    std::string objectref = "";
+    atlas::ref<atlas::scene_object> m_player_object;
 
     // Particle stuff
     glm::vec3 m_particles_origin; // origin of the rocket itself

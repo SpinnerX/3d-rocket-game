@@ -1,19 +1,23 @@
 #include "game_world.hpp"
-#include <engine3d/core/application_instance.hpp>
-#include <string>
+#include <atlas/core/application.hpp>
 
-namespace engine3d{
-    class RocketGameApplication : public engine3d::ApplicationInstance{
-    public:
-        RocketGameApplication(const std::string& Tag) : engine3d::ApplicationInstance(Tag){
-            m_MainWorld = CreateRef<RocketWorld>("Rocket World");
-        }
+class rocket_game_application : public atlas::application{
+public:
+    rocket_game_application(const atlas::application_settings& p_settings) : atlas::application(p_settings){
+        m_MainWorld = atlas::create_ref<rocket_world>("Rocket World");
+    }
 
-    private:
-        Ref<RocketWorld> m_MainWorld = nullptr;
-    };
+private:
+    atlas::ref<rocket_world> m_MainWorld = nullptr;
+};
 
-    Ref<ApplicationInstance> Initialize(){
-        return CreateRef<RocketGameApplication>("Rocket Game");
+namespace atlas{
+    ref<application> initialize_application(){
+        atlas::application_settings p_settings = {
+            .Name = "Rocket Game",
+            .Width = 1200,
+            .Height = 800
+        };
+        return create_ref<rocket_game_application>(p_settings);
     }
 };

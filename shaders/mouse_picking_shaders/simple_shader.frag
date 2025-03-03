@@ -6,19 +6,19 @@ layout(location = 0) out vec4 outColor;
 
 
 // layout(push_constant) uniform Push {
-//     // mat4 Transform; // proj * view * model
+//     // mat4 atlas::Transform; // proj * view * model
 //     mat4 Projection;
 //     mat4 View;
 //     mat4 Model;
-//     vec3 LightTransform;
+//     vec3 Lightatlas::Transform;
 // } push;
 
 // layout(push_constant) uniform Push {
-//     // mat4 Transform; // proj * view
+//     // mat4 atlas::Transform; // proj * view
 //     mat4 Projection;
 //     mat4 View;
 //     mat4 Model;
-//     vec3 LightTransform;
+//     vec3 Lightatlas::Transform;
 // } push;
 // we set our descriptor set to binding = 0
 // meaning that our descriptor set references to GlobalUbo
@@ -31,16 +31,16 @@ layout(set = 0, binding = 0) uniform GlobalCameraUbo{
     mat4 Projection;
     mat4 View;
     mat4 Model;
-    vec3 LightTransform;
+    vec3 Lightatlas::Transform;
     // vec4 Color;
 } camera_ubo;
 
 layout(push_constant) uniform Push {
-    // mat4 Transform; // proj * view
+    // mat4 atlas::Transform; // proj * view
     mat4 Projection;
     mat4 View;
     mat4 Model;
-    vec3 LightTransform;
+    vec3 Lightatlas::Transform;
     vec4 Color;
 } push;
 
